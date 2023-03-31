@@ -1,71 +1,96 @@
-// Import Modules
+// modules
 import { useEffect, useState } from "react";
-import { signOut } from "firebase/auth";
-import { Button } from "@mantine/core";
-import { doc, setDoc } from "firebase/firestore";
 
-// Import Components
-import base from "../components/firebase";
-import CreateTodo from "../components/CreateTodo";
+// components
+import { Input, Select } from "@mantine/core";
 import TodoItem from "../components/TodoItem";
-import { Select } from "@mantine/core";
-// Main Function
-function Home(props: any) {
-  // States
-  const { auth, db } = base;
-  const { user, setUser } = props;
-  const default_data = user.todoList;
-  const [todoList, setTodoList] = useState(user.todoList);
-  const [filter, setFilter] = useState("All");
-  // Log Out Function
-  function logOut() {
-    signOut(auth);
-  }
+import Notification from "../components/Notification";
+import CreateTodo from "../components/CreateTodo";
+import { Badge } from "@mantine/core";
 
-  // Update DB
+// Todo type
+type Todo = {
+  title: string;
+  description: string;
+  due: Date;
+  timestamp: Date;
+  status: boolean;
+};
+
+// Todo parser
+function parseTodoList(todoList: Todo[]) {
+  let parsedTodoList: Todo[] = [];
+  todoList.forEach((todo) => {
+    parsedTodoList.push({
+      title: todo.title,
+      description: todo.description,
+      due: new Date(todo.due),
+      timestamp: new Date(todo.timestamp),
+      status: todo.status,
+    });
+  });
+  return parsedTodoList;
+}
+
+function Home() {
+  // states
+  const default_data: Todo[] = [
+    {
+      title: "New Todo",
+      description: "Default Description",
+      due: new Date(),
+      timestamp: new Date(),
+      status: false,
+    },
+  ];
+  const [todoList, setTodoList] = useState(
+    localStorage.getItem("todoList") == null
+      ? default_data
+      : parseTodoList(JSON.parse(localStorage.getItem("todoList") || "[]"))
+  );
+  const [filter, setFilter] = useState("All");
+
+  // Update localStorage
   useEffect(() => {
-    if (todoList != default_data) {
-      let u = user;
-      u.todoList = todoList;
-      const updateUser = async (u: any) => {
-        const update = await setDoc(doc(db, "users", u.id), u);
-      };
-      updateUser(u).then(() => {
-        setUser(u);
-      });
-    } else {
-    }
+    localStorage.setItem("todoList", JSON.stringify(todoList));
   }, [todoList]);
 
-  // Update local TodoList
-  useEffect(() => {
-    setTodoList(user.todoList);
-  }, [user]);
-
+  // main
   return (
     <div>
       <h1>TaskMan</h1>
-      {/* Todo Continers */}
-
       <div className="todos-container">
-        <div className="filter">
-          <Select
-            placeholder="Pick one"
-            onSearchChange={(e) => {
-              setFilter(e);
-              console.log(filter);
-            }}
-            defaultValue="All"
-            nothingFound="No options"
-            data={["All", "Done", "Remaining"]}
-          />
+        <div className="controls">
+          <div className="search">
+            <Input
+              onChange={(e) => {
+                setFilter(e.target.value);
+                console.log(filter);
+              }}
+              placeholder="Search..."
+            ></Input>
+          </div>
+          <div className="filter">
+            <Select
+              placeholder="Search..."
+              onSearchChange={(e) => {
+                console.log(filter);
+              }}
+              defaultValue="All"
+              nothingFound="No options"
+              data={["All", "Done", "Remaining"]}
+            />
+          </div>
+          <CreateTodo todoList={todoList} setTodoList={setTodoList} />
         </div>
         {todoList.map((todo: any, id: number) => {
           //   console.log(id);
           if (
             filter === "All" ||
             (filter === "Done" && todo.status === true) ||
-            (filter === "Remaining" && todo.status === false)
+            (filter === "Remaining" && todo.status === false) ||
+            todo.title.toLowerCase().includes(filter.toLowerCase()) ||
+            todo.description.toLowerCase().includes(filter.toLowerCase())
           ) {
             return (
               <TodoItem
@@ -81,19 +106,14 @@ function Home(props: any) {
       </div>
 
       {/* Create a new todo */}
-      <CreateTodo todoList={todoList} setTodoList={setTodoList} />
 
-      {/* SignOut */}
-      <Button color="red" onClick={logOut} className="log-out">
-        Sign Out
-      </Button>
       {/* Style */}
       <style>{`
 
             .todos-container {
                 position: relative;
                 min-height: 5rem;
-                width: 50rem;
+                max-width: 50rem;
                 margin: 3rem auto;
                 display: flex;
                 flex-direction: column;
@@ -102,19 +122,31 @@ function Home(props: any) {
                 justify-content: flex-start;
             }
 
-            .filter{
-                width: 10rem;
-
+            .controls{
+                display: flex;
+                justify-content: flex-start;
+                width: 100%;
             }
 
-            
+            .search {
+                width: 100%;
+                max-width: calc(min(40rem, 50vw));
+            }
+
+            .filter{
+                max-width: 6rem;
+                margin: 0 1rem;
+            }
+      
             .log-out {
               position: fixed;
               left: 0;
               bottom: 0;
               margin: 1rem;
             }
+
           `}</style>
+      <Notification />
     </div>
   );
 }

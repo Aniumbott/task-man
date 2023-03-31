@@ -1,9 +1,5 @@
-import React from "react";
+// Modules
 import { useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
-import base from "./components/firebase";
-import SignIn from "./pages/SignIn";
-import SetUser from "./pages/SetUser";
 import "./App.css";
 import {
   MantineProvider,
@@ -12,12 +8,19 @@ import {
   Paper,
 } from "@mantine/core";
 
+// Components
+import ThemeToggle from "./components/ThemeToggle";
+
+// Pages
+import Home from "./pages/Home";
+
 function App() {
-  const auth = base.auth;
-  const [isloged] = useAuthState(auth);
+  // States
   const [colorScheme, setColorScheme] = useState<ColorScheme>("dark");
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+
+  // Main
   return (
     <div>
       <style>{`
@@ -33,9 +36,11 @@ function App() {
       >
         <MantineProvider theme={{ colorScheme }}>
           <Paper className="paper">
-            {/* Is Logged */}
-            <>{isloged ? <SetUser /> : <SignIn />}</>
-            {/* Theme Toggle */}
+            <Home />
+            <ThemeToggle
+              colorScheme={colorScheme}
+              toggleColorScheme={toggleColorScheme}
+            />
           </Paper>
         </MantineProvider>
       </ColorSchemeProvider>

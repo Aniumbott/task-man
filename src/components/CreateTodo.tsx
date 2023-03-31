@@ -1,36 +1,33 @@
 // Import Modules
-import React from "react";
-import { ActionIcon } from "@mantine/core";
+import { Button } from "@mantine/core";
 import { Plus } from "tabler-icons-react";
-import { Timestamp } from "firebase/firestore";
 
-// Main Function
 function CreateTodo(props: any) {
   const { setTodoList, todoList } = props;
 
-  // Function to create new todo
+  // Event Handlers
   const createTodo = () => {
     let newTodo = {
       title: "New Todo",
-      description: "remaining",
-      due: Timestamp.fromDate(new Date()),
-      timestamp: Timestamp.fromDate(new Date()),
+      description: "Default Description",
+      due: new Date(),
+      timestamp: new Date(),
       status: false,
     };
     setTodoList([...todoList, newTodo]);
   };
 
+  // Main
   return (
     <div className="create-todo-container">
-      <ActionIcon variant="filled" color="blue" onClick={() => {}}>
+      <Button variant="filled" color="blue" onClick={() => {}}>
         <Plus onClick={() => createTodo()} />
-      </ActionIcon>
+      </Button>
 
       {/* Style */}
       <style>
         {`
             .create-todo-container {
-                margin: 5rem auto;
                 display: flex;
                 justify-content: center;
             }

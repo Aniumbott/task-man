@@ -1,24 +1,22 @@
-// Import Modules
-import { Group, Modal, Button, Input } from "@mantine/core";
-import React, { useState, useEffect } from "react";
+// Modules
+import { Group, Modal, Button, Input, Textarea } from "@mantine/core";
+import { useState } from "react";
 import {
   Trash,
   SwitchHorizontal,
   ChevronUp,
   ChevronDown,
 } from "tabler-icons-react";
-import { Timestamp } from "firebase/firestore";
 
-// TodoItem Component
+// Components
+import { Badge } from "@mantine/core";
+import { DateTimePicker } from "@mantine/dates";
+
 function TodoItem(props: any) {
   const { todoList, setTodoList, id } = props;
   const [readable, setReadable] = useState(true);
   const [opened, setOpened] = useState(false);
-
-  // temp variable for todo data
   let tododata = todoList[id].description;
-
-  // Richtext Editor Component
 
   // Event Handlers
   const shiftUp = (id: any) => {
@@ -46,11 +44,7 @@ function TodoItem(props: any) {
     setTodoList([...todoList]);
   };
 
-  //   useEffect(() => {
-  //     window.localStorage.setItem("todoList", JSON.stringify(todoList));
-  //   }, [todoList]);
-
-  // Main Component
+  // Main
   return (
     <div>
       {/* Pop Up Modal */}
@@ -69,7 +63,25 @@ function TodoItem(props: any) {
           }}
         />
 
-        <div className="richtext"></div>
+        <Textarea
+          className="todo-description"
+          variant="filled"
+          defaultValue={todoList[id].description}
+          disabled={readable}
+          onChange={(e: any) => {
+            tododata = e.target.value;
+          }}
+        />
+        <div className="due-date">
+          <DateTimePicker
+          defaultValue={todoList[id].due}
+          variant="filled"
+            placeholder="Pick date and time"
+            maw={400}
+            mx="auto"
+            disabled={readable}
+          />
+        </div>
         <div className="modal-buttons">
           <Button
             className="edit-save-delete"
@@ -104,12 +116,12 @@ function TodoItem(props: any) {
           onClick={() => setOpened(true)}
         >
           <p>{todoList[id].title}</p>
-          {/* due date using TimeStamp */}
-          <p>
-            {Timestamp.fromDate(new Date(todoList[id].timestamp.seconds * 1000))
-              .toDate()
-              .toLocaleDateString()}
-          </p>
+          <Badge color="dark" className="badge">
+            {todoList[id].due.toDateString()}&nbsp;
+            <span style={{ color: "#0f9437" }}>
+              {todoList[id].due.getHours()}:{todoList[id].due.getMinutes()}
+            </span>
+          </Badge>
         </Button>
 
         {/* Left buttons */}
@@ -166,25 +178,38 @@ function TodoItem(props: any) {
           margin-top: 1rem;
           min-height: 4rem;
         }
-
-        .todo-caption{
-          width: 100%;
-          margin: 0.5rem 0;
-          pading: 0.5rem;
-        }
-
-        .todo-color-input{
-          margin: 0.5rem 0;
-        }
+       
         .todo-caption-button{
-        position: absolute;
+          position: absolute;
           left: 0;
           margin-left: 2rem;
           border-radius: 0;
           max-width: calc(100% - 4rem);
           min-width: calc(100% - 4rem);
           min-height: 4rem;
+          display: flex;
         }
+        .todo-caption-button p{
+            max-width: 70ch;
+        }
+        .badge{
+            position: absolute;
+            right: 0;
+            margin-right: 0.5rem;
+        }
+
+        .todo-caption, .todo-description, .todo-due{
+            margin: 0.5rem 0;
+            max-width: 100%;
+          }
+        
+          .mantine-Modal-content{
+            overflow-y: unset;
+          }
+        .mantine-DateInput-root div{
+            z-index: 1005 !important;
+        }
+        
         .todo-color{
           zindex: 10;
          position: absolute;
@@ -212,6 +237,13 @@ function TodoItem(props: any) {
         .edit-save-delete{
           margin-left: 0.5rem;
         }
+
+        @media only screen and (max-width: 600px) {
+
+        .todo-caption-button p{
+            max-width: 15ch;
+        }
+
         `}</style>
     </div>
   );
