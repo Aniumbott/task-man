@@ -82,7 +82,7 @@ function Home() {
   // main
   return (
     <div>
-      <a href="#" className="logo">
+      <a href="https://taskman-react.vercel.app/" className="logo">
         <img src={logo} alt="TaskMan Logo" />
       </a>
       <div className="todos-container">
@@ -114,7 +114,7 @@ function Home() {
           <CreateTodo todoList={todoList} setTodoList={setTodoList} />
         </div>
         {todoList.map((todo: any, id: number) => {
-            // console.log(id);
+          // console.log(id);
           if (
             filter === "All" ||
             (filter === "Done" && todo.status === true) ||
