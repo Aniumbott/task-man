@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 // components
 import { Input, Select } from "@mantine/core";
 import TodoItem from "../components/TodoItem";
-import Notification from "../components/Notification";
 import CreateTodo from "../components/CreateTodo";
-import { Badge } from "@mantine/core";
+import logo from "../assets/taskman-logo.svg";
 
 // Todo type
 type Todo = {
@@ -38,7 +37,7 @@ function Home() {
     {
       title: "New Todo",
       description: "Default Description",
-      due: new Date(),
+      due: new Date(Date.now() + 60 * 60 * 1000),
       timestamp: new Date(),
       status: false,
     },
@@ -50,22 +49,49 @@ function Home() {
   );
   const [filter, setFilter] = useState("All");
 
+  // Notify
+  const Notify = (todo: any) => {
+    new window.Notification("TaskMan", {
+      body: `Task "${todo.title}" is due!`,
+      icon: logo,
+    });
+  };
+
+  // Cehck Due
+  const checkDue = () => {
+    todoList.forEach((todo: any) => {
+      if (todo.status === false && todo.due <= Date.now()) {
+        Notify(todo);
+      }
+      // console.log("Checking...");
+    });
+  };
+
   // Update localStorage
   useEffect(() => {
     localStorage.setItem("todoList", JSON.stringify(todoList));
   }, [todoList]);
 
+  // Due date checkup
+  useEffect(() => {
+    setInterval(() => {
+      checkDue();
+    }, 60000);
+  }, []);
+
   // main
   return (
     <div>
-      <h1>TaskMan</h1>
+      <a href="#" className="logo">
+        <img src={logo} alt="TaskMan Logo" />
+      </a>
       <div className="todos-container">
         <div className="controls">
           <div className="search">
             <Input
               onChange={(e) => {
                 setFilter(e.target.value);
-                console.log(filter);
+                // console.log(filter);
               }}
               placeholder="Search..."
             ></Input>
@@ -74,7 +100,11 @@ function Home() {
             <Select
               placeholder="Search..."
               onSearchChange={(e) => {
-                console.log(filter);
+                // console.log(filter);
+              }}
+              onChange={(e) => {
+                setFilter(e ? e : "All");
+                // console.log(filter);
               }}
               defaultValue="All"
               nothingFound="No options"
@@ -84,7 +114,7 @@ function Home() {
           <CreateTodo todoList={todoList} setTodoList={setTodoList} />
         </div>
         {todoList.map((todo: any, id: number) => {
-          //   console.log(id);
+            // console.log(id);
           if (
             filter === "All" ||
             (filter === "Done" && todo.status === true) ||
@@ -109,7 +139,17 @@ function Home() {
 
       {/* Style */}
       <style>{`
+            .log{
+              position: fixed;
+              top: 0;
+              left: 0;
+              margin: 1rem;
+              display: flex;
 
+            }
+            .logo img{
+              height: 5rem;
+            }
             .todos-container {
                 position: relative;
                 min-height: 5rem;
@@ -134,7 +174,7 @@ function Home() {
             }
 
             .filter{
-                max-width: 6rem;
+                max-width: 7rem;
                 margin: 0 1rem;
             }
       
@@ -146,7 +186,6 @@ function Home() {
             }
 
           `}</style>
-      <Notification />
     </div>
   );
 }

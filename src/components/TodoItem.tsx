@@ -72,16 +72,18 @@ function TodoItem(props: any) {
             tododata = e.target.value;
           }}
         />
-        <div className="due-date">
-          <DateTimePicker
-          defaultValue={todoList[id].due}
+        <DateTimePicker
+          className="todo-due"
           variant="filled"
-            placeholder="Pick date and time"
-            maw={400}
-            mx="auto"
-            disabled={readable}
-          />
-        </div>
+          defaultValue={todoList[id].due}
+          placeholder="Pick date and time"
+          onChange={(e: any) => {
+            todoList[id].due = e;
+          }}
+          maw={400}
+          mx="auto"
+          disabled={readable}
+        />
         <div className="modal-buttons">
           <Button
             className="edit-save-delete"

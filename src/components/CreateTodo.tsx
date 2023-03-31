@@ -10,7 +10,7 @@ function CreateTodo(props: any) {
     let newTodo = {
       title: "New Todo",
       description: "Default Description",
-      due: new Date(),
+      due: new Date(Date.now() + 60 * 60 * 1000),
       timestamp: new Date(),
       status: false,
     };
